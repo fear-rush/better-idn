@@ -248,17 +248,20 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                 <h3 className="font-semibold">Post Info</h3>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div>
-                  <div className="text-sm font-medium">Upvoters</div>
-                  <div className="flex items-center gap-1 text-2xl font-bold">
-                    <ArrowBigUp className="h-6 w-6" />
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="sm">
+                    <ArrowBigUp className="mr-1 h-4 w-4" />
                     {post.upvotes}
-                  </div>
+                  </Button>
+                  <Button variant="ghost" size="sm">
+                    <MessageSquare className="mr-1 h-4 w-4" />
+                    {post.commentCount}
+                  </Button>
                 </div>
 
                 <div>
-                  <div className="text-sm font-medium">Date</div>
-                  <div className="mt-1 text-sm">
+                  <div className="text-sm text-muted-foreground">Posted</div>
+                  <div>
                     {new Date(post.createdAt).toLocaleDateString("en-US", {
                       day: "numeric",
                       month: "short",
@@ -266,21 +269,20 @@ export default function PostPage({ params }: { params: { slug: string } }) {
                     })}
                   </div>
                 </div>
-              </CardContent>
-            </Card>
 
-            <Card>
-              <CardHeader>
-                <h3 className="font-semibold">Subscribe to post</h3>
-              </CardHeader>
-              <CardContent>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  Get notified by email when there are changes.
-                </p>
-                <Button className="w-full">
-                  <MessageSquare className="mr-2 h-4 w-4" />
-                  Get notified
-                </Button>
+                <div>
+                  <div className="text-sm text-muted-foreground">Tags</div>
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags.map((tag) => (
+                      <div
+                        key={tag}
+                        className="rounded-full bg-secondary px-2 py-1 text-xs"
+                      >
+                        {tag}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
