@@ -22,6 +22,13 @@
       "when": 1735875865367,
       "tag": "0002_greedy_wind_dancer",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1738433725283,
+      "tag": "0003_daily_dust",
+      "breakpoints": true
     }
   ]
 }

@@ -3,6 +3,7 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
 import fs from "node:fs";
 import path from "node:path";
+import { hasZodFastifySchemaValidationErrors } from "fastify-type-provider-zod";
 import { userRoutes } from "./modules/user/user.router";
 import { checkDBConnection } from "./db";
 import {
@@ -12,10 +13,17 @@ import {
   jsonSchemaTransform,
 } from "fastify-type-provider-zod";
 import { config } from "./config";
-import { hasZodFastifySchemaValidationErrors } from "fastify-type-provider-zod";
 import { authenticate } from "./middleware/authenticate";
+import errorHandler from "./plugins/custom/error-handler";
 
-const server = fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+// TODO: cleanup the code and reorganize into plugin folder. external and custom (internal)
+
+// TODO: WATCH THE LOGGER LEVEL
+const server = fastify({
+  logger: {
+    level: "trace",
+  },
+}).withTypeProvider<ZodTypeProvider>();
 const sessionKey = fs.readFileSync(path.join(__dirname, "../secret-key"));
 
 server.register(function (app, _opts, done) {
@@ -69,11 +77,15 @@ server.register(function (app, _opts, done) {
 
   app.decorate("authenticate", authenticate);
 
+  // TODO: add CSRF token security mechanism
   app.register(import("@fastify/secure-session"), {
+    // TODO: add salt
     key: sessionKey,
     sessionName: "session",
     cookieName: "session-cookie",
+    logLevel: "debug",
     expiry: 24 * 60 * 60 * 7, // 7 Days
+    // expiry: 10, // 10 Seconds (for debug only)
     cookie: {
       path: "/",
       // httpOnly: true,
@@ -102,6 +114,7 @@ server.register(function (app, _opts, done) {
     transform: jsonSchemaTransform,
   });
 
+  app.register(errorHandler);
   app.register(fastifySwaggerUI, {
     routePrefix: "/docs",
   });
