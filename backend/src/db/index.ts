@@ -4,11 +4,9 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import * as schema from "./schema";
 import { config } from "../config";
 
-// Create a database connection
 const client = postgres(config.DATABASE_URL || "");
 const db = drizzle(client, { schema });
 
-// Function to check database connection
 export async function checkDBConnection() {
   try {
     await client`SELECT 1`; // Simple query to check connection

@@ -3,7 +3,6 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
 import fs from "node:fs";
 import path from "node:path";
-import { hasZodFastifySchemaValidationErrors } from "fastify-type-provider-zod";
 import { userRoutes } from "./modules/user/user.router";
 import { checkDBConnection } from "./db";
 import {
@@ -55,24 +54,6 @@ server.register(function (app, _opts, done) {
       statusCode: 404,
     });
     return;
-  });
-
-  app.setErrorHandler((error, _, reply) => {
-    if (hasZodFastifySchemaValidationErrors(error)) {
-      reply.code(400).send({
-        status: "error",
-        statusCode: 400,
-        error: "Bad Request",
-        message: error.message,
-      });
-      return;
-    }
-    reply.code(error.statusCode || 500).send({
-      status: "error",
-      statusCode: error.statusCode || 500,
-      error: error.name ?? "Internal server error",
-      message: error instanceof Error ? error.message : "Unknown error occured",
-    });
   });
 
   app.decorate("authenticate", authenticate);

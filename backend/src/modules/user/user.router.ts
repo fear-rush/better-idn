@@ -13,24 +13,26 @@ import {
 } from "./user.schema";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 
+// TODO: signup, signin, signout, session can be decoupled into /auth route
+
 export function userRoutes(app: FastifyInstance) {
   app.withTypeProvider<ZodTypeProvider>().route({
     method: "POST",
-    url: "/signup",
+    url: "/user/signup",
     handler: createUserHandler,
     schema: createUserSchema,
   });
 
   app.withTypeProvider<ZodTypeProvider>().route({
     method: "POST",
-    url: "/sessions",
+    url: "/user/signin",
     handler: signInUserHandler,
     schema: signInUserSchema,
   });
 
   app.withTypeProvider<ZodTypeProvider>().route({
     method: "DELETE",
-    url: "/sessions",
+    url: "/user/signout",
     preHandler: [app.authenticate],
     handler: signOutUserHandler,
     schema: signOutUserSchema,
@@ -38,7 +40,7 @@ export function userRoutes(app: FastifyInstance) {
 
   app.withTypeProvider<ZodTypeProvider>().route({
     method: "GET",
-    url: "/sessions",
+    url: "/user/session",
     preHandler: [app.authenticate],
     handler: getCurrentUserHandler,
     schema: getCurrentUserSchema,

@@ -5,7 +5,8 @@ const passwordRegex =
 const usernameRegex = /^[a-zA-Z0-9_]+$/;
 
 export const createUserSchema = {
-  tags: ["users"],
+  tags: ["user"],
+  summary: "Create a new user",
   body: z.object({
     email: z
       .string()
@@ -32,7 +33,8 @@ export const createUserSchema = {
 };
 
 export const signInUserSchema = {
-  tags: ["users"],
+  tags: ["user"],
+  summary: "Logs user into the system (creating a new stateless cookie session)",
   body: z.object({
     email: z
       .string()
@@ -52,7 +54,8 @@ export const signInUserSchema = {
 };
 
 export const signOutUserSchema = {
-  tags: ["users"],
+  tags: ["user"],
+  summary: "Logs out user from the system (deleting stateless cookie session)",
   response: {
     200: z
       .object({
@@ -63,7 +66,8 @@ export const signOutUserSchema = {
 };
 
 export const getCurrentUserSchema = {
-  tags: ["users"],
+  tags: ["user"],
+  summary: "Get current user session",
   response: {
     200: z
       .object({
