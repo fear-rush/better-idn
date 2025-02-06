@@ -22,6 +22,7 @@ export function PostFilter() {
         variant={currentFilter === "trending" ? "default" : "ghost"}
         size="sm"
         onClick={() => handleFilterChange("trending")}
+        className={currentFilter === "trending" ? "bg-white text-black hover:bg-white/90" : ""}
       >
         <Flame className="mr-2 h-4 w-4" />
         Trending
@@ -30,6 +31,7 @@ export function PostFilter() {
         variant={currentFilter === "new" ? "default" : "ghost"}
         size="sm"
         onClick={() => handleFilterChange("new")}
+        className={currentFilter === "new" ? "bg-white text-black hover:bg-white/90" : ""}
       >
         <Clock className="mr-2 h-4 w-4" />
         New
@@ -38,6 +40,7 @@ export function PostFilter() {
         variant={currentFilter === "top" ? "default" : "ghost"}
         size="sm"
         onClick={() => handleFilterChange("top")}
+        className={currentFilter === "top" ? "bg-white text-black hover:bg-white/90" : ""}
       >
         <TrendingUp className="mr-2 h-4 w-4" />
         Top

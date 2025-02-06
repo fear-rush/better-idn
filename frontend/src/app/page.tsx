@@ -133,7 +133,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                 <PostFilter />
                 <PostSearch />
               </div>
-              <Button asChild>
+              <Button asChild className="bg-blue-500 hover:bg-blue-600 text-white">
                 <Link href="/new">
                   <Plus className="mr-2 h-4 w-4" />
                   New Post
