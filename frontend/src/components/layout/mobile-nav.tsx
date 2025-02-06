@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
 import { NavigationLinks } from "./navigation-links";
 
-
 export const MobileNav = () => {
   return (
     <Sheet>
@@ -16,7 +15,7 @@ export const MobileNav = () => {
         </Button>
       </SheetTrigger>
       <SheetContent side="right" className="w-full">
-        <SheetTitle>Navigation Menu</SheetTitle>
+        <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
         <div className="flex flex-col space-y-4 pt-4">
           <NavigationLinks
             className="flex flex-col space-y-4 text-center mt-4"
@@ -26,4 +25,4 @@ export const MobileNav = () => {
       </SheetContent>
     </Sheet>
   );
-}
+};
