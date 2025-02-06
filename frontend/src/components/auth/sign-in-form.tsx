@@ -105,7 +105,7 @@ export function SignInForm() {
         />
         <Button 
           type="submit" 
-          className="w-full h-11 mt-6" 
+          className="w-full h-11 mt-6 bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700" 
           disabled={isPending}
         >
           {isPending && (

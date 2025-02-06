@@ -152,7 +152,11 @@ export function SignUpForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isPending}>
+        <Button 
+          type="submit" 
+          disabled={isPending}
+          className="w-full bg-blue-600 text-white hover:bg-blue-700 dark:bg-blue-600 dark:hover:bg-blue-700"
+        >
           {isPending && (
             <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
           )}
