@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowBigUp, MessageSquare } from "lucide-react";
+import { MessageSquareText, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { slugify } from "@/lib/utils";
 
@@ -26,30 +26,53 @@ export function PostCard({
   createdAt,
 }: PostCardProps) {
   return (
-    <Link href={`/forum/${slugify(title)}`}>
-      <Card className="hover:bg-muted/50 transition-colors">
+    <Link 
+      href={`/forum/${slugify(title)}`}
+      aria-label={`View post: ${title}`}
+    >
+      <Card className="hover:bg-muted/50 transition-colors dark:hover:bg-muted/20">
         <CardHeader className="space-y-2">
-          <CardTitle className="line-clamp-2">{title}</CardTitle>
-          <CardDescription className="line-clamp-2">{description}</CardDescription>
-          <div className="flex gap-2 flex-wrap">
+          <CardTitle>{title}</CardTitle>
+          <CardDescription>{description}</CardDescription>
+          <div 
+            className="flex gap-2 flex-wrap"
+            role="list"
+            aria-label="Post categories"
+          >
             {tags.map((tag) => (
-              <Badge key={tag} variant="secondary">
+              <Badge 
+                key={tag} 
+                variant="secondary"
+                role="listitem"
+              >
                 {tag}
               </Badge>
             ))}
           </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <ArrowBigUp className="h-4 w-4" />
+          <div 
+            className="flex items-center gap-4 text-sm text-muted-foreground"
+            role="group"
+            aria-label="Post statistics"
+          >
+            <div 
+              className="flex items-center gap-1"
+              role="status"
+              aria-label="Upvotes"
+            >
+              <ThumbsUp className="h-4 w-4" aria-hidden="true" />
               <span>{upvotes}</span>
             </div>
-            <div className="flex items-center gap-1">
-              <MessageSquare className="h-4 w-4" />
+            <div 
+              className="flex items-center gap-1"
+              role="status"
+              aria-label="Comments"
+            >
+              <MessageSquareText className="h-4 w-4" aria-hidden="true" />
               <span>{commentCount}</span>
             </div>
-            <div>
+            <div role="status" aria-label="Post date">
               {new Date(createdAt).toLocaleDateString("en-US", {
                 day: "numeric",
                 month: "short",

@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 const navigation = [
   { name: "Home", href: "/" },
-  { name: "Forum", href: "/forum" },
   { name: "About", href: "/about" },
+  { name: "Guidelines", href: "/guidelines" },
 ] as const;
 
 interface NavigationLinkProps {
