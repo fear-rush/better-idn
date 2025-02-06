@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowBigUp, MessageSquare } from "lucide-react";
+import { MessageSquareText, ThumbsUp } from "lucide-react";
 import Link from "next/link";
 import { slugify } from "@/lib/utils";
 
@@ -30,7 +30,7 @@ export function PostCard({
       href={`/forum/${slugify(title)}`}
       aria-label={`View post: ${title}`}
     >
-      <Card className="hover:bg-muted/50 transition-colors">
+      <Card className="hover:bg-muted/50 transition-colors dark:hover:bg-muted/20">
         <CardHeader className="space-y-2">
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
@@ -61,7 +61,7 @@ export function PostCard({
               role="status"
               aria-label="Upvotes"
             >
-              <ArrowBigUp className="h-4 w-4" aria-hidden="true" />
+              <ThumbsUp className="h-4 w-4" aria-hidden="true" />
               <span>{upvotes}</span>
             </div>
             <div 
@@ -69,7 +69,7 @@ export function PostCard({
               role="status"
               aria-label="Comments"
             >
-              <MessageSquare className="h-4 w-4" aria-hidden="true" />
+              <MessageSquareText className="h-4 w-4" aria-hidden="true" />
               <span>{commentCount}</span>
             </div>
             <div role="status" aria-label="Post date">
