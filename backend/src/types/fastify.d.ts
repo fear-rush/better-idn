@@ -1,6 +1,6 @@
 import "@fastify/secure-session";
 import "fastify";
-import { findUserById } from "../modules/user/user.service";
+import { findUserById } from "../modules/auth/auth.service";
 import { authenticate } from "../middleware/authenticate";
 
 // for setting cookies. so the server can set the session. e.g: req.session.set("user")

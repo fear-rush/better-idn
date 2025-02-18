@@ -4,8 +4,10 @@ const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 const usernameRegex = /^[a-zA-Z0-9_]+$/;
 
+// TODO: change to auth tags instead of user
+// TODO: maybe delete the username minimum length
 export const createUserSchema = {
-  tags: ["user"],
+  tags: ["auth"],
   summary: "Create a new user",
   body: z.object({
     email: z
@@ -33,12 +35,12 @@ export const createUserSchema = {
 };
 
 export const signInUserSchema = {
-  tags: ["user"],
+  tags: ["auth"],
   summary: "Logs user into the system (creating a new stateless cookie session)",
   body: z.object({
     email: z
       .string()
-      .email("Invalid email")
+      .email({message: "Invalid email"})
       .transform((email) => email.toLowerCase()),
     password: z.string().min(8, {
       message: "Password must contain at least 8 characters",
@@ -54,7 +56,7 @@ export const signInUserSchema = {
 };
 
 export const signOutUserSchema = {
-  tags: ["user"],
+  tags: ["auth"],
   summary: "Logs out user from the system (deleting stateless cookie session)",
   response: {
     200: z
@@ -66,7 +68,7 @@ export const signOutUserSchema = {
 };
 
 export const getCurrentUserSchema = {
-  tags: ["user"],
+  tags: ["auth"],
   summary: "Get current user session",
   response: {
     200: z
@@ -74,7 +76,7 @@ export const getCurrentUserSchema = {
         message: z.string().default("Succesfully get current user data"),
         data: z.object({
           user: z.object({
-            id: z.string(),
+            id: z.string().uuid(),
             username: z.string(),
           }),
         }),

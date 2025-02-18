@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { FastifyRequest, FastifyReply } from "fastify";
-import { createUser, findUserByEmail, verifyPassword } from "./user.service";
-import { createUserSchema, signInUserSchema } from "./user.schema";
+import { createUser, findUserByEmail, verifyPassword } from "./auth.service";
+import { createUserSchema, signInUserSchema } from "./auth.schema";
 
 export async function createUserHandler(
   req: FastifyRequest<{ Body: z.infer<typeof createUserSchema.body> }>,
@@ -23,6 +23,12 @@ export async function signInUserHandler(
   const { email, password } = req.body;
 
   const user = await findUserByEmail(email);
+  if (!user) {
+    reply.code(401).send({
+      message: "Invalid credentials",
+    });
+    return;
+  }
   await verifyPassword(password, user.password);
 
   req.session.set("user", { id: user.id, username: user.username });

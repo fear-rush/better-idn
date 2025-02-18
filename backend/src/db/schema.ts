@@ -12,6 +12,7 @@ import {
   check,
   primaryKey,
 } from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
 
 const timestamps = {
   createdAt: timestamp("created_at", { withTimezone: true })
@@ -23,7 +24,6 @@ const timestamps = {
     .notNull(),
 };
 
-// TODO: maybe composite key id and username can improve query performance with drizzle prepared statement
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   username: text("username").notNull().unique(),
@@ -31,11 +31,19 @@ export const users = pgTable("users", {
   password: text("password").notNull(),
   isEmailConfirmed: boolean("is_email_confirmed").default(false).notNull(),
   bio: text("bio"),
-  avatar_url: text("avatar_url"),
+  avatarUrl: text("avatar_url"),
   preferences: jsonb("preferences"),
   lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
   ...timestamps,
 });
+
+export const usersRelations = relations(users, ({ many }) => ({
+  posts: many(posts),
+  emailConfirmations: many(emailConfirmations),
+  postVotes: many(postVotes),
+  commentVotes: many(commentVotes),
+  loginProviders: many(loginProviders),
+}));
 
 export const emailConfirmations = pgTable("email_confirmations", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -49,6 +57,13 @@ export const emailConfirmations = pgTable("email_confirmations", {
   expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
 });
 
+export const emailConfirmationsRelations = relations(emailConfirmations, ({ one }) => ({
+  user: one(users, {
+    fields: [emailConfirmations.userId],
+    references: [users.id],
+  }),
+}));
+
 export const posts = pgTable("posts", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")
@@ -59,16 +74,38 @@ export const posts = pgTable("posts", {
   ...timestamps,
 });
 
+export const postsRelations = relations(posts, ({ one, many }) => ({
+  user: one(users, {
+    fields: [posts.userId],
+    references: [users.id],
+  }),
+  comments: many(comments),
+  metadata: one(postMetadata, {
+    fields: [posts.id],
+    references: [postMetadata.id],
+  }),
+  votes: many(postVotes),
+  postsToCategories: many(postsToCategories),
+}));
+
 export const comments = pgTable("comments", {
   id: uuid("id").primaryKey().defaultRandom(),
-  post_id: uuid("post_id")
+  postId: uuid("post_id")
     .references(() => posts.id, { onDelete: "cascade" })
     .notNull(),
   content: text("content").notNull(),
   ...timestamps,
 });
 
-export const post_metadata = pgTable("post_metadata", {
+export const commentsRelations = relations(comments, ({ one, many }) => ({
+  post: one(posts, {
+    fields: [comments.postId],
+    references: [posts.id],
+  }),
+  votes: many(commentVotes),
+}));
+
+export const postMetadata = pgTable("post_metadata", {
   id: uuid("id")
     .primaryKey()
     .references(() => posts.id, { onDelete: "cascade" })
@@ -84,49 +121,84 @@ export const post_metadata = pgTable("post_metadata", {
   lastCommentAt: timestamp("last_comment_at", { withTimezone: true }),
 });
 
-export const post_votes = pgTable(
+export const postMetadataRelations = relations(postMetadata, ({ one }) => ({
+  post: one(posts, {
+    fields: [postMetadata.id],
+    references: [posts.id],
+  }),
+  firstComment: one(comments, {
+    fields: [postMetadata.firstCommentId],
+    references: [comments.id],
+  }),
+  lastComment: one(comments, {
+    fields: [postMetadata.lastCommentId],
+    references: [comments.id],
+  }),
+}));
+
+export const postVotes = pgTable(
   "post_votes",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    post_id: uuid("post_id")
+    postId: uuid("post_id")
       .references(() => posts.id)
       .notNull(),
-    user_id: uuid("user_id")
+    userId: uuid("user_id")
       .references(() => users.id)
       .notNull(),
-    vote_type: integer("vote_type"),
+    voteType: integer("vote_type"),
   },
   (table) => [
     {
-      // TODO: check whether this function is run or not
-      checkConstraint: check("vote_check", sql`${table.vote_type} IN (-1,1)`), // ensure constraint -1 for downvote and 1 for upvote
+      checkConstraint: check("vote_check", sql`${table.voteType} IN (-1,1)`), // ensure constraint -1 for downvote and 1 for upvote
     },
   ]
 );
 
-export const comment_votes = pgTable(
+export const postVotesRelations = relations(postVotes, ({ one }) => ({
+  post: one(posts, {
+    fields: [postVotes.postId],
+    references: [posts.id],
+  }),
+  user: one(users, {
+    fields: [postVotes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const commentVotes = pgTable(
   "comment_votes",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    comment_id: uuid("comment_id")
+    commentId: uuid("comment_id")
       .references(() => comments.id)
       .notNull(),
-    user_id: uuid("user_id")
+    userId: uuid("user_id")
       .references(() => users.id)
       .notNull(),
-    vote_type: integer("vote_type"),
+    voteType: integer("vote_type"),
   },
   (table) => [
     {
-      // TODO: check whether this function is run or not
-      checkConstraint: check("vote_check", sql`${table.vote_type} IN (-1,1)`), // ensure constraint -1 for downvote and 1 for upvote
+      checkConstraint: check("vote_check", sql`${table.voteType} IN (-1,1)`), // ensure constraint -1 for downvote and 1 for upvote
     },
   ]
 );
 
-export const login_providers = pgTable("login_providers", {
+export const commentVotesRelations = relations(commentVotes, ({ one }) => ({
+  comment: one(comments, {
+    fields: [commentVotes.commentId],
+    references: [comments.id],
+  }),
+  user: one(users, {
+    fields: [commentVotes.userId],
+    references: [users.id],
+  }),
+}));
+
+export const loginProviders = pgTable("login_providers", {
   id: uuid("id").primaryKey().defaultRandom(),
-  user_id: uuid("user_id")
+  userId: uuid("user_id")
     .references(() => users.id)
     .notNull(),
   provider: text("provider").notNull(),
@@ -134,29 +206,51 @@ export const login_providers = pgTable("login_providers", {
   ...timestamps,
 });
 
-export const tags = pgTable("tags", {
+export const loginProvidersRelations = relations(loginProviders, ({ one }) => ({
+  user: one(users, {
+    fields: [loginProviders.userId],
+    references: [users.id],
+  }),
+}));
+
+export const categories = pgTable("categories", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").unique().notNull(),
 });
 
-export const post_tags = pgTable(
-  "post_tags",
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  postsToCategories: many(postsToCategories),
+}));
+
+export const postsToCategories = pgTable(
+  "posts_categories",
   {
     postId: uuid("post_id")
-      .references(() => posts.id)
+      .references(() => posts.id, { onDelete: "cascade" })
       .notNull(),
-    tagId: uuid("tag_id")
-      .references(() => tags.id)
+    categoryId: uuid("category_id")
+      .references(() => categories.id, { onDelete: "cascade" })
       .notNull(),
   },
   (table) => {
     return [
       {
-        pk: primaryKey({ columns: [table.postId, table.tagId] }),
+        pk: primaryKey({ columns: [table.postId, table.categoryId] }),
       },
     ];
   }
 );
+
+export const postsToCategoriesRelations = relations(postsToCategories, ({ one }) => ({
+  post: one(posts, {
+    fields: [postsToCategories.postId],
+    references: [posts.id],
+  }),
+  category: one(categories, {
+    fields: [postsToCategories.categoryId],
+    references: [categories.id],
+  }),
+}));
 
 // TODO: implement notifications table, module, and functions later. because it's a bit complicated
 
@@ -176,3 +270,4 @@ export const post_tags = pgTable(
 //   read_at: timestamp("read_at", { withTimezone: true }),
 //   is_deleted: boolean("is_deleted").default(false),
 // });
+

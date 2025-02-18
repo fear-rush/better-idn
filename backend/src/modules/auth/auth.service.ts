@@ -3,17 +3,26 @@ import z from "zod";
 import { db } from "../../db";
 import { users } from "../../db/schema";
 import { eq } from "drizzle-orm";
-import { createUserSchema } from "./user.schema";
+import { createUserSchema } from "./auth.schema";
 import { AppError } from "../../utils/custom-error";
+import { User, UserWithPassword } from "../user/user.type";
 
 export async function createUser(
   userData: z.infer<typeof createUserSchema.body>
-) {
-  const hashedPassword = await argon2.hash(userData.password);
+): Promise<User> {
   const existingUser = await findUserByUsername(userData.username);
+  const existingEmail = await findUserByEmail(userData.email);
+
+  if (existingEmail?.email) {
+    throw new AppError("User already exists", 400);
+  }
+
   if (existingUser?.username) {
     throw new AppError("User already exists!", 400);
   }
+
+  const hashedPassword = await argon2.hash(userData.password);
+
   const newUser = await db
     .insert(users)
     .values({
@@ -30,12 +39,18 @@ export async function createUser(
   if (!newUser[0]) {
     throw new AppError("Error creating user", 500);
   }
+
+  return newUser[0];
 }
 
-async function findUserByUsername(username: string) {
+// TODO: create user route to find by username
+export async function findUserByUsername(
+  username: string
+): Promise<User | undefined> {
   const user = await db.query.users.findFirst({
     where: eq(users.username, username),
     columns: {
+      id: true,
       username: true,
     },
   });
@@ -43,7 +58,7 @@ async function findUserByUsername(username: string) {
   return user;
 }
 
-export async function findUserById(userId: string) {
+export async function findUserById(userId: string): Promise<User | undefined> {
   const user = await db.query.users.findFirst({
     where: eq(users.id, userId),
     columns: {
@@ -51,25 +66,22 @@ export async function findUserById(userId: string) {
       username: true,
     },
   });
-  if (!user?.username) {
-    throw new AppError("User not found", 404);
-  }
 
   return user;
 }
 
-export async function findUserByEmail(email: string) {
+export async function findUserByEmail(
+  email: string
+): Promise<UserWithPassword | undefined> {
   const user = await db.query.users.findFirst({
     where: eq(users.email, email),
     columns: {
       id: true,
+      email: true,
       username: true,
       password: true,
     },
   });
-  if (!user?.username) {
-    throw new AppError("User not found", 404);
-  }
 
   return user;
 }
@@ -77,7 +89,7 @@ export async function findUserByEmail(email: string) {
 export async function verifyPassword(
   candidatePassword: string,
   hashedPassword: string
-) {
+): Promise<void> {
   const isValidPassword = await argon2.verify(
     hashedPassword,
     candidatePassword

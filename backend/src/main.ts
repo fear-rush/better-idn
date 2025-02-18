@@ -3,7 +3,8 @@ import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUI from "@fastify/swagger-ui";
 import fs from "node:fs";
 import path from "node:path";
-import { userRoutes } from "./modules/user/user.router";
+import { userRoutes } from "./modules/auth/auth.router";
+import { postRoutes } from "./modules/post/post.router";
 import { checkDBConnection } from "./db";
 import {
   serializerCompiler,
@@ -100,6 +101,7 @@ server.register(function (app, _opts, done) {
     routePrefix: "/docs",
   });
   app.register(userRoutes, { prefix: "/api/v1" });
+  app.register(postRoutes, { prefix: "/api/v1" });
 
   done();
 });

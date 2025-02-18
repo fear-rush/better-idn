@@ -29,11 +29,7 @@ const schema = z.object({
   POSTGRES_DB: z.string(),
 });
 
-// Parse and validate the environment variables
 export const config = schema.parse(process.env);
-
-// Export the Config type for type checking
 export type Config = z.infer<typeof schema>;
 
-// Log which environment file was loaded for debugging
 console.log(`Loaded environment variables from: ${envFile}`);
